@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GUI } from "dat.gui";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 // Create scene
 const scene = new THREE.Scene();
@@ -70,12 +71,18 @@ const generatePlane = () => {
 // Call generatePlane to apply initial randomization
 generatePlane();
 
+new OrbitControls(camera, renderer.domElement);
 camera.position.z = 5;
 
-// light
+// main light
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(0, 0, 1);
 scene.add(light);
+
+// back light
+const lightBack = new THREE.DirectionalLight(0xffffff, 1);
+lightBack.position.set(0, 0, -1);
+scene.add(lightBack);
 
 // Animation loop
 function animate() {
@@ -115,7 +122,13 @@ planeFolder
 planeFolder.open();
 
 const lightFolder = gui.addFolder("Light");
-lightFolder.add(light.position, "x", -10, 10);
-lightFolder.add(light.position, "y", -10, 10);
-lightFolder.add(light.position, "z", -10, 10);
+lightFolder.add(light.position, "x", -10, 10).name("Light X");
+lightFolder.add(light.position, "y", -10, 10).name("Light Y");
+lightFolder.add(light.position, "z", -10, 10).name("Light Z");
 lightFolder.open();
+
+const backLightFolder = gui.addFolder("Back Light");
+backLightFolder.add(lightBack.position, "x", -10, 10).name("Back Light X");
+backLightFolder.add(lightBack.position, "y", -10, 10).name("Back Light Y");
+backLightFolder.add(lightBack.position, "z", -10, 10).name("Back Light Z");
+backLightFolder.open();

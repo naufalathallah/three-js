@@ -13,6 +13,8 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
+const raycaster = new THREE.Raycaster();
+
 // Create renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -27,9 +29,9 @@ const cube = new THREE.Mesh(geometry, material);
 
 // Create a plane
 const materialPlane = new THREE.MeshPhongMaterial({
-  color: 0xff0000,
   side: THREE.DoubleSide,
   flatShading: true,
+  vertexColors: true,
 });
 const plane = new THREE.Mesh(
   new THREE.PlaneGeometry(10, 10, 10, 10),
@@ -44,6 +46,11 @@ const world = {
     widthSegments: 10,
     heightSegments: 10,
   },
+};
+
+const mouse = {
+  x: undefined,
+  y: undefined,
 };
 
 const generatePlane = () => {
@@ -66,6 +73,17 @@ const generatePlane = () => {
   }
   plane.geometry.attributes.position.needsUpdate = true;
   plane.geometry.computeVertexNormals();
+
+  // Apply colors to the new geometry
+  const colors = [];
+  for (let i = 0; i < plane.geometry.attributes.position.count; i++) {
+    colors.push(1, 0, 0);
+  }
+
+  plane.geometry.setAttribute(
+    "color",
+    new THREE.BufferAttribute(new Float32Array(colors), 3)
+  );
 };
 
 // Call generatePlane to apply initial randomization
@@ -94,7 +112,26 @@ function animate() {
   // plane.rotation.x += 0.01;
 
   renderer.render(scene, camera);
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObject(plane);
+  if (intersects.length > 0) {
+    const { color } = intersects[0].object.geometry.attributes;
+    color.setX(intersects[0].face.a, 0);
+    color.setY(intersects[0].face.a, 0);
+    color.setZ(intersects[0].face.a, 1);
+
+    color.setX(intersects[0].face.b, 0);
+    color.setY(intersects[0].face.b, 0);
+    color.setZ(intersects[0].face.b, 1);
+
+    color.setX(intersects[0].face.c, 0);
+    color.setY(intersects[0].face.c, 0);
+    color.setZ(intersects[0].face.c, 1);
+    color.needsUpdate = true;
+  }
 }
+
 animate();
 
 // Add dat.GUI controls
@@ -132,3 +169,8 @@ backLightFolder.add(lightBack.position, "x", -10, 10).name("Back Light X");
 backLightFolder.add(lightBack.position, "y", -10, 10).name("Back Light Y");
 backLightFolder.add(lightBack.position, "z", -10, 10).name("Back Light Z");
 backLightFolder.open();
+
+addEventListener("mousemove", (event) => {
+  mouse.x = (event.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / innerHeight) * 2 + 1;
+});

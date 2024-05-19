@@ -3,6 +3,20 @@ import { GUI } from "dat.gui";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import gsap from "gsap";
 
+const world = {
+  plane: {
+    width: 19,
+    height: 19,
+    widthSegments: 35,
+    heightSegments: 35,
+  },
+};
+
+const mouse = {
+  x: undefined,
+  y: undefined,
+};
+
 // Create scene
 const scene = new THREE.Scene();
 
@@ -35,24 +49,15 @@ const materialPlane = new THREE.MeshPhongMaterial({
   vertexColors: true,
 });
 const plane = new THREE.Mesh(
-  new THREE.PlaneGeometry(10, 10, 10, 10),
+  new THREE.PlaneGeometry(
+    world.plane.width,
+    world.plane.height,
+    world.plane.widthSegments,
+    world.plane.heightSegments
+  ),
   materialPlane
 );
 scene.add(plane);
-
-const world = {
-  plane: {
-    width: 10,
-    height: 10,
-    widthSegments: 10,
-    heightSegments: 10,
-  },
-};
-
-const mouse = {
-  x: undefined,
-  y: undefined,
-};
 
 const generatePlane = () => {
   plane.geometry.dispose();
@@ -172,19 +177,19 @@ planeFolder.add(plane.rotation, "x", 0, Math.PI * 2).name("Rotation X");
 planeFolder.add(plane.rotation, "y", 0, Math.PI * 2).name("Rotation Y");
 planeFolder.add(plane.rotation, "z", 0, Math.PI * 2).name("Rotation Z");
 planeFolder
-  .add(world.plane, "width", 1, 20)
+  .add(world.plane, "width", 1, 50)
   .name("Width")
   .onChange(generatePlane);
 planeFolder
-  .add(world.plane, "height", 1, 20)
+  .add(world.plane, "height", 1, 50)
   .name("Height")
   .onChange(generatePlane);
 planeFolder
-  .add(world.plane, "widthSegments", 1, 20)
+  .add(world.plane, "widthSegments", 1, 50)
   .name("Width Segments")
   .onChange(generatePlane);
 planeFolder
-  .add(world.plane, "heightSegments", 1, 20)
+  .add(world.plane, "heightSegments", 1, 50)
   .name("Height Segments")
   .onChange(generatePlane);
 planeFolder.open();

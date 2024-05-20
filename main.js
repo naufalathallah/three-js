@@ -33,14 +33,8 @@ const raycaster = new THREE.Raycaster();
 // Create renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(devicePixelRatio);
+renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
-
-// Create a cube
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-// scene.add(cube);
 
 // Create a plane
 const materialPlane = new THREE.MeshPhongMaterial({
@@ -74,34 +68,27 @@ const generatePlane = () => {
 
   for (let i = 0; i < array.length; i++) {
     if (i % 3 === 0) {
-      const x = array[i];
-      const y = array[i + 1];
-      const z = array[i + 2];
-
-      array[i] = x + (Math.random() - 0.5) * 5;
-      array[i + 1] = y + (Math.random() - 0.5) * 5;
-      array[i + 2] = z + (Math.random() - 0.5) * 5;
+      array[i] += (Math.random() - 0.5) * 5;
+      array[i + 1] += (Math.random() - 0.5) * 5;
+      array[i + 2] += (Math.random() - 0.5) * 5;
     }
     randomValues.push(Math.random() * Math.PI * 2);
   }
 
   plane.geometry.attributes.position.randomValues = randomValues;
-
   plane.geometry.attributes.position.originalPosition =
     plane.geometry.attributes.position.array;
   plane.geometry.attributes.position.needsUpdate = true;
   plane.geometry.computeVertexNormals();
 
   // Apply colors to the new geometry
-  const colors = [];
-  for (let i = 0; i < plane.geometry.attributes.position.count; i++) {
-    colors.push(0, 0.19, 0.4);
+  const colors = new Float32Array(plane.geometry.attributes.position.count * 3);
+  for (let i = 0; i < colors.length; i += 3) {
+    colors[i] = 0;
+    colors[i + 1] = 0.19;
+    colors[i + 2] = 0.4;
   }
-
-  plane.geometry.setAttribute(
-    "color",
-    new THREE.BufferAttribute(new Float32Array(colors), 3)
-  );
+  plane.geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 };
 
 // Call generatePlane to apply initial randomization
@@ -125,11 +112,6 @@ let frame = 0;
 function animate() {
   requestAnimationFrame(animate);
 
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-
-  // plane.rotation.x += 0.01;
-
   renderer.render(scene, camera);
   raycaster.setFromCamera(mouse, camera);
   frame += 0.01;
@@ -148,46 +130,35 @@ function animate() {
   const intersects = raycaster.intersectObject(plane);
   if (intersects.length > 0) {
     const { color } = intersects[0].object.geometry.attributes;
-    color.setX(intersects[0].face.a, 0.1);
-    color.setY(intersects[0].face.a, 0.5);
-    color.setZ(intersects[0].face.a, 1);
-
-    color.setX(intersects[0].face.b, 0.1);
-    color.setY(intersects[0].face.b, 0.5);
-    color.setZ(intersects[0].face.b, 1);
-
-    color.setX(intersects[0].face.c, 0.1);
-    color.setY(intersects[0].face.c, 0.5);
-    color.setZ(intersects[0].face.c, 1);
+    color.setXYZ(intersects[0].face.a, 0.1, 0.5, 1);
+    color.setXYZ(intersects[0].face.b, 0.1, 0.5, 1);
+    color.setXYZ(intersects[0].face.c, 0.1, 0.5, 1);
     color.needsUpdate = true;
 
-    const initialColor = {
-      r: 0,
-      g: 0.19,
-      b: 0.4,
-    };
+    const initialColor = { r: 0, g: 0.19, b: 0.4 };
+    const hoverColor = { r: 0.1, g: 0.5, b: 1 };
 
-    const hoverColor = {
-      r: 0.1,
-      g: 0.5,
-      b: 1,
-    };
     gsap.to(hoverColor, {
-      r: initialColor.r,
-      g: initialColor.g,
-      b: initialColor.b,
+      ...initialColor,
       onUpdate: () => {
-        color.setX(intersects[0].face.a, hoverColor.r);
-        color.setY(intersects[0].face.a, hoverColor.g);
-        color.setZ(intersects[0].face.a, hoverColor.b);
-
-        color.setX(intersects[0].face.b, hoverColor.r);
-        color.setY(intersects[0].face.b, hoverColor.g);
-        color.setZ(intersects[0].face.b, hoverColor.b);
-
-        color.setX(intersects[0].face.c, hoverColor.r);
-        color.setY(intersects[0].face.c, hoverColor.g);
-        color.setZ(intersects[0].face.c, hoverColor.b);
+        color.setXYZ(
+          intersects[0].face.a,
+          hoverColor.r,
+          hoverColor.g,
+          hoverColor.b
+        );
+        color.setXYZ(
+          intersects[0].face.b,
+          hoverColor.r,
+          hoverColor.g,
+          hoverColor.b
+        );
+        color.setXYZ(
+          intersects[0].face.c,
+          hoverColor.r,
+          hoverColor.g,
+          hoverColor.b
+        );
       },
     });
   }
@@ -231,7 +202,7 @@ backLightFolder.add(lightBack.position, "y", -10, 10).name("Back Light Y");
 backLightFolder.add(lightBack.position, "z", -10, 10).name("Back Light Z");
 backLightFolder.open();
 
-addEventListener("mousemove", (event) => {
+window.addEventListener("mousemove", (event) => {
   mouse.x = (event.clientX / innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / innerHeight) * 2 + 1;
 });

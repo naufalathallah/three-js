@@ -5,10 +5,10 @@ import gsap from "gsap";
 
 const world = {
   plane: {
-    width: 19,
-    height: 19,
-    widthSegments: 35,
-    heightSegments: 35,
+    width: 400,
+    height: 400,
+    widthSegments: 50,
+    heightSegments: 50,
   },
 };
 
@@ -70,13 +70,25 @@ const generatePlane = () => {
 
   // Apply random deformation to the new geometry
   const { array } = plane.geometry.attributes.position;
-  for (let i = 0; i < array.length; i += 3) {
-    const x = array[i];
-    const y = array[i + 1];
-    const z = array[i + 2];
+  const randomValues = [];
 
-    array[i + 2] = z + Math.random();
+  for (let i = 0; i < array.length; i++) {
+    if (i % 3 === 0) {
+      const x = array[i];
+      const y = array[i + 1];
+      const z = array[i + 2];
+
+      array[i] = x + (Math.random() - 0.5) * 5;
+      array[i + 1] = y + (Math.random() - 0.5) * 5;
+      array[i + 2] = z + (Math.random() - 0.5) * 5;
+    }
+    randomValues.push(Math.random() * Math.PI * 2);
   }
+
+  plane.geometry.attributes.position.randomValues = randomValues;
+
+  plane.geometry.attributes.position.originalPosition =
+    plane.geometry.attributes.position.array;
   plane.geometry.attributes.position.needsUpdate = true;
   plane.geometry.computeVertexNormals();
 
@@ -96,11 +108,11 @@ const generatePlane = () => {
 generatePlane();
 
 new OrbitControls(camera, renderer.domElement);
-camera.position.z = 5;
+camera.position.z = 50;
 
 // main light
 const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(0, 0, 1);
+light.position.set(0, -1, 1);
 scene.add(light);
 
 // back light
@@ -108,6 +120,7 @@ const lightBack = new THREE.DirectionalLight(0xffffff, 1);
 lightBack.position.set(0, 0, -1);
 scene.add(lightBack);
 
+let frame = 0;
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
@@ -119,6 +132,18 @@ function animate() {
 
   renderer.render(scene, camera);
   raycaster.setFromCamera(mouse, camera);
+  frame += 0.01;
+
+  const { array, originalPosition, randomValues } =
+    plane.geometry.attributes.position;
+
+  for (let i = 0; i < array.length; i += 3) {
+    array[i] = originalPosition[i] + Math.cos(frame + randomValues[i]) * 0.01;
+    array[i + 1] =
+      originalPosition[i + 1] + Math.sin(frame + randomValues[i + 1]) * 0.01;
+  }
+
+  plane.geometry.attributes.position.needsUpdate = true;
 
   const intersects = raycaster.intersectObject(plane);
   if (intersects.length > 0) {
@@ -177,19 +202,19 @@ planeFolder.add(plane.rotation, "x", 0, Math.PI * 2).name("Rotation X");
 planeFolder.add(plane.rotation, "y", 0, Math.PI * 2).name("Rotation Y");
 planeFolder.add(plane.rotation, "z", 0, Math.PI * 2).name("Rotation Z");
 planeFolder
-  .add(world.plane, "width", 1, 50)
+  .add(world.plane, "width", 1, 500)
   .name("Width")
   .onChange(generatePlane);
 planeFolder
-  .add(world.plane, "height", 1, 50)
+  .add(world.plane, "height", 1, 500)
   .name("Height")
   .onChange(generatePlane);
 planeFolder
-  .add(world.plane, "widthSegments", 1, 50)
+  .add(world.plane, "widthSegments", 1, 100)
   .name("Width Segments")
   .onChange(generatePlane);
 planeFolder
-  .add(world.plane, "heightSegments", 1, 50)
+  .add(world.plane, "heightSegments", 1, 100)
   .name("Height Segments")
   .onChange(generatePlane);
 planeFolder.open();

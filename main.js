@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GUI } from "dat.gui";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import gsap from "gsap";
+import "./style.css";
 
 const world = {
   plane: {
@@ -115,6 +116,7 @@ function animate() {
   renderer.render(scene, camera);
   raycaster.setFromCamera(mouse, camera);
   frame += 0.01;
+  // plane.rotation.y += 0.1;
 
   const { array, originalPosition, randomValues } =
     plane.geometry.attributes.position;

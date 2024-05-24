@@ -229,3 +229,26 @@ window.addEventListener("mousemove", (event) => {
   mouse.x = (event.clientX / innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / innerHeight) * 2 + 1;
 });
+
+gsap.to("#nama", {
+  opacity: 1,
+  duration: 1.5,
+  y: 0,
+  ease: "expo",
+});
+
+gsap.to("#deskripsi", {
+  opacity: 1,
+  duration: 1.5,
+  delay: 0.3,
+  y: 0,
+  ease: "expo",
+});
+
+gsap.to("#aksi", {
+  opacity: 1,
+  duration: 1.5,
+  delay: 0.6,
+  y: 0,
+  ease: "expo",
+});

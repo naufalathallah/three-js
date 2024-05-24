@@ -266,3 +266,9 @@ document.querySelector("#aksi").addEventListener("click", (e) => {
     delay: 1.5,
   });
 });
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});

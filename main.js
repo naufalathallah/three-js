@@ -255,7 +255,6 @@ gsap.to("#aksi", {
 
 document.querySelector("#aksi").addEventListener("click", (e) => {
   e.preventDefault();
-  console.log("ya");
   gsap.to("#container", { opacity: 0 });
   gsap.to(camera.position, { z: 25, ease: "power3.inOut", duration: 1.5 });
   gsap.to(camera.rotation, { x: 1.57, ease: "power3.inOut", duration: 1.5 });
@@ -264,6 +263,9 @@ document.querySelector("#aksi").addEventListener("click", (e) => {
     ease: "power3.in",
     duration: 1,
     delay: 1.5,
+    onComplete: () => {
+      window.location = "http://localhost:5173/";
+    },
   });
 });
 

@@ -108,6 +108,26 @@ const lightBack = new THREE.DirectionalLight(0xffffff, 1);
 lightBack.position.set(0, 0, -1);
 scene.add(lightBack);
 
+const starGeometry = new THREE.BufferGeometry();
+const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
+
+const starVerticies = [];
+for (let i = 0; i < 1000; i++) {
+  const x = (Math.random() - 0.5) * 2000;
+  const y = (Math.random() - 0.5) * 2000;
+  const z = (Math.random() - 0.5) * 2000;
+  starVerticies.push(x, y, z);
+}
+
+starGeometry.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(starVerticies, 3)
+);
+
+const stars = new THREE.Points(starGeometry, starMaterial);
+
+scene.add(stars);
+
 let frame = 0;
 // Animation loop
 function animate() {
@@ -164,6 +184,7 @@ function animate() {
       },
     });
   }
+  stars.rotation.x += 0.0005;
 }
 
 animate();
